@@ -1,6 +1,6 @@
 # 项目教程
-## * [项目结构简介](项目简介.md)
-## * [手把手教您做个demo](demo.md)
+##  [项目结构简介](项目简介.md)
+##  [手把手教您做个demo](demo.md)
 ##相关学习资料
 * http://egghead.io/
 * http://www.apjs.net/
