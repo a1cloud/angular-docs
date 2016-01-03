@@ -145,29 +145,53 @@ _说明：到目前为止，使用gulp启动程序就可以通过 /#/demo当问�
 
 export default class MainController {
 
-  constructor(DemoService) {
+  constructor(DemoService,$location) {
     this.DemoService = DemoService;
-    this.loading=true;
-    this.data={};
+    this.$location=$location;
+    this.loading = true;
+    this.data = {};
+    let {pageNumber,codeOrName} = $location.search();
+
+    this.query = {
+      pageSize :10,
+      pageNumber:pageNumber||1,
+      codeOrName :codeOrName||''
+    };
+
+    this.loadData();
   }
 
-  loadData(){
-    this.DemoService.findAll((resp)=>{
-      let data= response.data.data||{};
-      this.data={
-        items: data.Data||[],
-        total: data.TotalRecords||0,
-        page: data.PageNumber||1
+  loadData() {
+    this.fetchData(this.query);
+  }
+
+  go(pageNumber){
+
+    this.query.pageNumber = pageNumber;
+    this.$location.search(this.query);
+    this.fetchData(this.query);
+    return;
+  }
+
+  fetchData(params) {
+    this.loading=true;
+    this.DemoService.findAll(params).then((resp) => {
+      let data = resp.data.data || {};
+      this.data = {
+        items: data.Data || [],
+        total: data.TotalRecords || 0,
+        page: data.PageNumber || 1
       };
-      this.loading=false;
-    },(err)=>{
+      this.loading = false;
+    }, (err) => {
       this.errorMessage = err.data.Message;
       this.loading = false;
     });
   }
 }
 
-MainController.$inject=['DemoService'];
+MainController.$inject = ['DemoService','$location'];
+
 
 
 ```
@@ -213,7 +237,7 @@ _说明：这里我们同$inject的注入方式使用DemoService进行获取数�
         <tr ng-repeat="item in vm.data.items">
           <td>{{item.Code}} </td>
           <td style="text-align:left;padding-left:10px;">{{item.Name}}</td>
-          <td>{{item.UnitPrice|currency:"￥"}}</td>
+          <td>  {{item.UnitPrice|currency:"￥"}}</td>
         </tr>
       </tbody>
     </table>
@@ -238,6 +262,7 @@ _说明：这里我们同$inject的注入方式使用DemoService进行获取数�
     </div>
   </footer>
 </section>
+
 
 
 ```
