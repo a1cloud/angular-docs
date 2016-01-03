@@ -140,6 +140,112 @@ _说明：到目前为止，使用gulp启动程序就可以通过 /#/demo当问�
 
 ## 添加点业务测试一下
 
+* 首先打开src/app/controllers/demo/main.js
+```js
+
+export default class MainController {
+
+  constructor(DemoService) {
+    this.DemoService = DemoService;
+    this.loading=true;
+    this.data={};
+  }
+
+  loadData(){
+    this.DemoService.findAll((resp)=>{
+      let data= response.data.data||{};
+      this.data={
+        items: data.Data||[],
+        total: data.TotalRecords||0,
+        page: data.PageNumber||1
+      };
+      this.loading=false;
+    },(err)=>{
+      this.errorMessage = err.data.Message;
+      this.loading = false;
+    });
+  }
+}
+
+MainController.$inject=['DemoService'];
+
+
+```
+
+_说明：这里我们同$inject的注入方式使用DemoService进行获取数据，然后赋值到this.data中, 我们在路由里面使用了controllerAs:'vm',我们后面就可以在页面里面使用vm.data获取服务提供的数据了
+
+##修改界面，src/app/views/demo/main.html
+
+```html
+
+
+<section class="panel panel-default content-box">
+  <header class="panel-heading"> Demo列表 </header>
+  <div class="table-responsive">
+    <table class="table table-striped b-t b-light">
+      <thead>
+        <tr>
+          <th width="100">商品编码</th>
+          <th>商品名称</th>
+          <th width="100">单价</th>
+        </tr>
+      </thead>
+
+      <!--loading-->
+      <tbody ng-if="vm.loading">
+        <tr >
+          <td colspan='6'>
+          <a1-loader/>
+          </td>
+        </tr>
+      </tbody>
+      <!--not found-->
+      <tbody ng-if="vm.data.items && vm.data.items.length===0 && vm.loading==false && !vm.errorMessage">
+        <tr>
+          <td colspan='6' height="200" style="vertical-align: middle;text-align:center">
+            <i class='fa fa-umbrella fa-5x'></i>
+            <div>没有找到相关商品</div>
+          </td>
+        </tr>
+      </tbody>
+      <!--list items-->
+      <tbody ng-if="vm.data.items && vm.data.items.length>0 && vm.loading==false">
+        <tr ng-repeat="item in vm.data.items">
+          <td>{{item.Code}} </td>
+          <td style="text-align:left;padding-left:10px;">{{item.Name}}</td>
+          <td>{{item.UnitPrice|currency:"￥"}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!--page-->
+  <footer class="panel-footer" ng-if="vm.data.items && vm.data.items.length>0 && vm.loading==false">
+    <div class="row">
+      <div class="col-sm-4 hidden-xs">
+        <!--button-->
+      </div>
+      <div class="col-sm-8 text-right text-center-xs">
+        <a1-paging
+          page="vm.query.pageNumber"
+          ul-class="pagination pagination-sm m-t-none m-b-none"
+          page-size="10"
+          total="vm.data.total"
+          show-prev-next=true
+          paging-action="vm.go(page)">
+          </div>
+      </div>
+
+    </div>
+  </footer>
+</section>
+
+
+```
+
+到此为止一个通过服务获取远程访问，然后显示数据的demo就制作完成了。
+
+
+
 
 
 
